@@ -102,17 +102,12 @@ npx skills add talhayme/antagonist
 ```
 
 The installer lets you choose the agents to set it up for (Claude Code,
-Codex, Cursor and others). Then install the browser it drives, once, from the
-skill's `scripts` folder. For a personal Claude Code install that is:
+Codex, Cursor and others). That is the whole setup: the first time the agent
+uses the skill, it installs its own dependencies and a small headless browser
+(about 200 MB, under a minute) and says so.
 
-```sh
-cd ~/.claude/skills/antagonist/scripts
-npm install
-npx playwright install chromium
-```
-
-Or copy [`skills/antagonist`](skills/antagonist) into your agent's skills
-folder by hand.
+You can also copy [`skills/antagonist`](skills/antagonist) into your agent's
+skills folder by hand.
 
 ## Rules it keeps
 

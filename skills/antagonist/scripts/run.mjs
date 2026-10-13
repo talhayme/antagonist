@@ -11,14 +11,16 @@
 //   --reset <command>      run this shell command first, to put server data back
 //   --viewport <WxH>       browser window size, default 1280x900
 //   --only <regex>         list only the controls matching this (long screens)
+//   --within <css>         print text and controls only from this region, e.g. main
 //
 // With no steps file it shows the first screen. Every run starts from a clean
 // browser, so a steps file is always a complete reproduction.
 
 import fs from 'node:fs';
-import { replay, closeBrowser, parseArgs, environment } from './lib.mjs';
+await import('./setup.mjs');
+const { replay, closeBrowser, parseArgs, environment } = await import('./lib.mjs');
 
-const { flags, positional } = parseArgs(process.argv.slice(2), ['--allow', '--timezone', '--clock', '--reset', '--screenshot', '--viewport', '--only', '--server-clock', '--cookies']);
+const { flags, positional } = parseArgs(process.argv.slice(2), ['--allow', '--timezone', '--clock', '--reset', '--screenshot', '--viewport', '--only', '--within', '--server-clock', '--cookies']);
 const [baseUrl, stepsPath] = positional;
 if (!baseUrl) {
     console.error(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 14).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
@@ -32,7 +34,7 @@ if (stepsPath) {
         process.exit(2);
     }
 }
-const seen = await replay(baseUrl, steps, environment(flags), { screenshot: flags['--screenshot'] ?? null });
+const seen = await replay(baseUrl, steps, environment(flags), { screenshot: flags['--screenshot'] ?? null, within: flags['--within'] ?? null });
 await seen.close();
 await closeBrowser();
 const limit = flags['--full'] ? Infinity : 2500;
@@ -42,6 +44,8 @@ if (seen.failedStep) {
     const f = seen.failedStep;
     console.log(`STOPPED AT STEP ${f.index} ${JSON.stringify(f.step)}\n  ${f.error}\n  The ${f.notRun} step(s) after it were not run. Everything below is the screen at the moment it stopped.\n`);
 }
+const onlyEarly = flags['--only'] ? new RegExp(flags['--only'], 'i') : null;
+for (const shot of seen.snapshots) shot.controls = onlyEarly ? shot.controls.filter(c => onlyEarly.test(c)) : shot.controls;
 for (const shot of seen.snapshots) console.log(`SNAPSHOT "${shot.name}"  ${shot.url}\n${cut(shot.text)}\n${shot.controls.length ? 'controls:\n' + shot.controls.join('\n') + '\n' : ''}${shot.downloads.length ? `(downloads so far: ${shot.downloads.map(d => d.name).join(', ')})\n` : ''}`);
 console.log(`URL    ${seen.url}`);
 console.log(`\nTEXT (${seen.text.length} chars; what a user can read. Values typed into fields are under CONTROLS)\n${cut(seen.text)}`);

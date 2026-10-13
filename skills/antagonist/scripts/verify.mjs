@@ -19,7 +19,8 @@
 
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
-import { replay, closeBrowser, violations, validateExpect, parseArgs, environment } from './lib.mjs';
+await import('./setup.mjs');
+const { replay, closeBrowser, violations, validateExpect, parseArgs, environment } = await import('./lib.mjs');
 
 const { flags, positional } = parseArgs(process.argv.slice(2), ['--allow', '--timezone', '--clock', '--reset', '--viewport', '--server-clock', '--cookies']);
 const [baseUrl, ...findingPaths] = positional;

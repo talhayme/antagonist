@@ -28,9 +28,10 @@ finding you cannot prove does not go in the report.
 
 ## Tools
 
-Both scripts are in `scripts/` next to this file. If `node_modules` is
-missing there, run `npm install` and `npx playwright install chromium` in that
-folder once.
+Both scripts are in `scripts/` next to this file. The first run installs
+what they need (the dependencies and a small headless browser, about 200 MB)
+and says so; it takes under a minute. If it cannot, it prints the command to
+run yourself.
 
 ### Look: `run.mjs`
 
@@ -56,6 +57,7 @@ allowed to reach, and the session cookie.
 | `--reset "command"` | run a shell command first, to put server data back |
 | `--cookies "sid=abc; other=1"` | start every replay signed in, without using the login form |
 | `--viewport 390x844` | window size; the default is 1280x900 |
+| `--within main` | print text and controls only from this region; menus and sidebars repeat on every screen |
 | `--only "regex"` | list only matching controls, for long screens |
 
 Every run starts from nothing, so a steps file is always a complete

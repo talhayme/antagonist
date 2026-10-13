@@ -5,7 +5,8 @@
 // Usage: node selftest.mjs <base-url> [steps.json] [--allow host,host]
 
 import fs from 'node:fs';
-import { replay, closeBrowser, locate, parseArgs, environment } from './lib.mjs';
+await import('./setup.mjs');
+const { replay, closeBrowser, locate, parseArgs, environment } = await import('./lib.mjs');
 
 const { flags, positional } = parseArgs(process.argv.slice(2), ['--allow', '--timezone', '--clock', '--reset', '--viewport', '--server-clock', '--cookies']);
 const [baseUrl, stepsPath] = positional;

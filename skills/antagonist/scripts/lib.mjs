@@ -84,13 +84,15 @@ async function centre(locator) {
 
 async function observe(page, state, { withControls = true } = {}) {
     await Promise.all(state.pendingDownloads);
-    const seen = await page.evaluate(() => ({
+    const seen = await page.evaluate(within => ({
         url: location.pathname + location.search + location.hash,
         pageUrl: location.href,
-        text: (document.body?.innerText ?? '').replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim(),
+        // With a region set, only the text inside it: menus and sidebars repeat on every screen.
+        text: (within ? [...document.querySelectorAll(within)].map(el => el.innerText).join('\n') : document.body?.innerText ?? '')
+            .replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim(),
         storage: Object.fromEntries(Object.keys(localStorage).map(key => [key, localStorage.getItem(key)]))
-    })).catch(error => ({ url: page.url(), text: '', storage: {}, unreadable: String(error.message).slice(0, 120) }));
-    const controls = withControls ? await listControls(page) : [];
+    }), state.within ?? null).catch(error => ({ url: page.url(), text: '', storage: {}, unreadable: String(error.message).slice(0, 120) }));
+    const controls = withControls ? await listControls(page, state.within) : [];
     return {
         ...seen,
         controls,
@@ -102,12 +104,13 @@ async function observe(page, state, { withControls = true } = {}) {
     };
 }
 
-async function listControls(page) {
+async function listControls(page, within = null) {
     const lines = [];
     for (const [selector, role] of KINDS) {
         const group = page.locator(selector);
-        const described = await group.evaluateAll(els => els.slice(0, 80).map(el => {
+        const described = await group.evaluateAll((els, within) => els.slice(0, 120).map(el => {
             const tag = el.tagName.toLowerCase();
+            const inside = !within || Boolean(el.closest(within));
             const icon = el.querySelector('svg')?.getAttribute('class')?.match(/(?:lucide|icon|fa)-([a-z0-9-]+)/)?.[1];
             const name = (el.getAttribute('aria-label') || el.innerText || el.getAttribute('title') || '').trim().replace(/\s+/g, ' ').slice(0, 60);
             const facts = ['required', 'disabled', 'readOnly'].filter(k => el[k]);
@@ -122,10 +125,13 @@ async function listControls(page) {
                 placeholder: el.getAttribute('placeholder'),
                 value: 'value' in el && tag !== 'button' && el.value !== '' ? String(el.value).slice(0, 40) : null,
                 facts,
-                rowText: row ? (row.innerText ?? '').trim().replace(/\s+/g, ' ').slice(0, 40) : null
+                rowText: row ? (row.innerText ?? '').trim().replace(/\s+/g, ' ').slice(0, 40) : null,
+                inside
             };
-        })).catch(() => []);
+        }), within).catch(() => []);
         for (const [index, c] of described.entries()) {
+            // Positions count every control, so targets stay valid; only the listing is narrowed.
+            if (!c.inside) continue;
             const inputRole = c.ownRole ? c.ownRole : c.tag !== 'input' ? role : { checkbox: 'checkbox', radio: 'radio', number: 'spinbutton', range: 'slider', submit: 'button', button: 'button' }[c.type] ?? 'textbox';
             // Prefer a target that survives rows being added; fall back to position.
             let target = null;
@@ -234,7 +240,7 @@ export async function closeBrowser() {
 
 // Replays steps and returns the final observation. `keepOpen` leaves the page
 // alive for the caller's own checks; the caller must then call `close()`.
-export async function replay(baseUrl, steps, env = {}, { screenshot = null } = {}) {
+export async function replay(baseUrl, steps, env = {}, { screenshot = null, within = null } = {}) {
     if (env.reset) execSync(env.reset, { stdio: 'ignore', timeout: 60_000, shell: '/bin/sh', cwd: env.cwd ?? process.cwd() });
     const base = new URL(baseUrl);
     const allowed = new Set([base.host, ...(env.allowHosts ?? [])]);
@@ -245,7 +251,7 @@ export async function replay(baseUrl, steps, env = {}, { screenshot = null } = {
         ...(env.timezone ? { timezoneId: env.timezone } : {})
     });
     const page = await context.newPage();
-    const state = { errors: [], requests: [], downloads: [], dialogs: [], blockedHosts: new Set(), snapshots: [], pendingDownloads: [], notes: [], acceptDialogs: true, index: 0 };
+    const state = { errors: [], requests: [], downloads: [], dialogs: [], blockedHosts: new Set(), snapshots: [], pendingDownloads: [], notes: [], acceptDialogs: true, index: 0, within };
     page.on('pageerror', e => state.errors.push({ kind: 'uncaught exception', text: String(e.message).split('\n')[0].slice(0, 300) }));
     page.on('console', m => {
         if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) state.errors.push({ kind: 'console error', text: m.text().split('\n')[0].slice(0, 300) });
