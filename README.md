@@ -72,17 +72,21 @@ it follows lives in [`skills/antagonist/catalog`](skills/antagonist/catalog):
 On nine open-source web apps it had not seen before (41 to 2,836 GitHub
 stars: note-taking, budgeting, a family planner, habit trackers, a grocery
 planner, a collaborative editor and an e-book reader), Antagonist confirmed 40
-defects. Five of them lose a user's data or take the app down for everyone:
+defects. Five of them lose a user's data or take the app down for everyone.
 
-- creating a note whose name contains `#` empties another note;
-- opening a file with special characters in its name crashes the server;
-- one malformed upload stops every user from adding books until a restart.
+Reported so far:
 
-Others store wrong data quietly: a monthly reminder set for the 31st drifts to
-the 28th and never comes back, and a meal planned for Sunday is saved as
-Saturday in every time zone east of UTC.
+| Project | What Antagonist found | Report |
+|---|---|---|
+| [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery) | Creating a note named `B#1`, or `b`, empties the existing note `B` | [#317](https://github.com/gamosoft/NoteDiscovery/issues/317) |
+| NoteDiscovery | Renaming a shared note, or its folder, breaks the share link | [#318](https://github.com/gamosoft/NoteDiscovery/issues/318) |
+| NoteDiscovery | Export as HTML fails for titles with non-Latin characters | [#319](https://github.com/gamosoft/NoteDiscovery/issues/319) |
 
-I am reporting them to the maintainers before naming the projects here.
+The other projects are not named until their maintainers have heard from me.
+Among those findings: a server that one request can take down for every
+user, a monthly reminder set for the 31st that drifts to the 28th and never
+comes back, and a meal planned for Sunday that is saved as Saturday in every
+time zone east of UTC.
 
 On the same run it found nothing to report in the places where the apps were
 solid: access between users, money arithmetic and shared-expense splits all
