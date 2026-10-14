@@ -2,6 +2,10 @@
 
 **Your agent built it. Antagonist tries to break it, and tells you only what it can prove.**
 
+![Antagonist finds that creating a note named "C#" empties the note "C" in NoteDiscovery, then proves it with no model in the loop](docs/demo.gif)
+
+*A real find in [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery), condensed: the maintainer fixed it the next day in v0.32.1.*
+
 Antagonist is an agent skill. It turns your coding agent into a hostile tester
 for the web app you are building: it reads the app the way a user does, attacks
 it with the inputs and sequences that break apps (a `#` in a name, a double
@@ -76,11 +80,16 @@ defects. Five of them lose a user's data or take the app down for everyone.
 
 Reported so far:
 
-| Project | What Antagonist found | Report |
-|---|---|---|
-| [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery) | Creating a note named `B#1`, or `b`, empties the existing note `B` | [#317](https://github.com/gamosoft/NoteDiscovery/issues/317) |
-| NoteDiscovery | Renaming a shared note, or its folder, breaks the share link | [#318](https://github.com/gamosoft/NoteDiscovery/issues/318) |
-| NoteDiscovery | Export as HTML fails for titles with non-Latin characters | [#319](https://github.com/gamosoft/NoteDiscovery/issues/319) |
+| Project | What Antagonist found | Report | Status |
+|---|---|---|---|
+| [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery) | Creating a note named `B#1`, or `b`, empties the existing note `B` | [#317](https://github.com/gamosoft/NoteDiscovery/issues/317) | fixed in v0.32.1 |
+| NoteDiscovery | Renaming a shared note, or its folder, breaks the share link | [#318](https://github.com/gamosoft/NoteDiscovery/issues/318) | fixed in v0.32.1 |
+| NoteDiscovery | Export as HTML fails for titles with non-Latin characters | [#319](https://github.com/gamosoft/NoteDiscovery/issues/319) | fixed in v0.32.1 |
+
+The maintainer fixed all three the day they were reported. To confirm the
+release, I ran the same proof files against v0.32.1: every attack that used
+to break the app now passes, and every control still holds. A proof that
+finds a defect doubles as its regression test.
 
 The other projects are not named until their maintainers have heard from me.
 Among those findings: a server that one request can take down for every
