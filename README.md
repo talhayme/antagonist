@@ -88,7 +88,7 @@ Reported so far:
 | [FlyBudget](https://github.com/dtymoszenko/FlyBudget) | CSV import silently drops rows whose amount it cannot read | [#112](https://github.com/dtymoszenko/FlyBudget/issues/112) | fixed in [#113](https://github.com/dtymoszenko/FlyBudget/pull/113) |
 
 The NoteDiscovery maintainer fixed all three the day they were reported, and
-FlyBudget's fixed its report two days later. To confirm each fix, I ran the
+the FlyBudget maintainer fixed theirs the next day. To confirm each fix, I ran the
 same proof files against the fixed version: every attack that used to break
 the app now passes, and every control still holds. A proof that finds a
 defect doubles as its regression test.
