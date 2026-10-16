@@ -85,11 +85,13 @@ Reported so far:
 | [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery) | Creating a note named `B#1`, or `b`, empties the existing note `B` | [#317](https://github.com/gamosoft/NoteDiscovery/issues/317) | fixed in v0.32.1 |
 | NoteDiscovery | Renaming a shared note, or its folder, breaks the share link | [#318](https://github.com/gamosoft/NoteDiscovery/issues/318) | fixed in v0.32.1 |
 | NoteDiscovery | Export as HTML fails for titles with non-Latin characters | [#319](https://github.com/gamosoft/NoteDiscovery/issues/319) | fixed in v0.32.1 |
+| [FlyBudget](https://github.com/dtymoszenko/FlyBudget) | CSV import silently drops rows whose amount it cannot read | [#112](https://github.com/dtymoszenko/FlyBudget/issues/112) | fixed in [#113](https://github.com/dtymoszenko/FlyBudget/pull/113) |
 
-The maintainer fixed all three the day they were reported. To confirm the
-release, I ran the same proof files against v0.32.1: every attack that used
-to break the app now passes, and every control still holds. A proof that
-finds a defect doubles as its regression test.
+The NoteDiscovery maintainer fixed all three the day they were reported, and
+FlyBudget's fixed its report two days later. To confirm each fix, I ran the
+same proof files against the fixed version: every attack that used to break
+the app now passes, and every control still holds. A proof that finds a
+defect doubles as its regression test.
 
 The other projects are not named until their maintainers have heard from me.
 Among those findings: a server that one request can take down for every
